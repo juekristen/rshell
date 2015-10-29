@@ -63,7 +63,7 @@ class CommandLine
 class Execute
 {
     public:
-        void go(string cmd, string flag)
+        bool go(string cmd, string flag)
         {
             pid_t pid, lpid;
             int status;
@@ -78,6 +78,7 @@ class Execute
             else if( pid == 0 )
             {
                 execvp( args[0], (char**)args); 
+                return false;
                 perror("execve failed");
                 //printf("Child: I'm the child: %d\n", pid);
             }
@@ -86,14 +87,29 @@ class Execute
                 //printf("Parent: I'm the parent: %d\n", pid);
                 if( (lpid = wait(&status)) < 0)
                 {
-                  perror("wait");
-                  exit(1);
+                    return false;
+                    perror("wait");
+                    exit(1);
                 }
 
             }
             
         }
 
+};
+
+class Connector
+{
+    public:
+        bool ors(bool one)
+        {
+            if(one)
+            {
+               command cmd;
+               cmd.go(cmd1,cmd2);
+            }
+           return; 
+        }
 };
 
 int main(int argc, char *argv[])
@@ -119,9 +135,9 @@ int main(int argc, char *argv[])
         cmd.start(lst);
         if(lst.size() != 0 && lst.at(0) != "exit")
         {
-            for (int i = 0; i < lst.size()-1; ++i)
+            for (int i = 0; i < lst.size() - 2; i = i + 3)
             {
-                //ex.go(lst.at(i));
+                ex.go(lst.at(i), lst.at(i+1));
                 cout << lst.at(i) << endl;
             }
         }
