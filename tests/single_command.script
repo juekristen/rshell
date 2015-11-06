@@ -1,0 +1,23 @@
+Script started on Fri 06 Nov 2015 02:13:27 PM PST
+]0;kjue001@hammer:~/rshell[?1034h[kjue001@hammer rshell]$ make
+rm -rf bin
+mkdir bin
+g++ -Wall -Werror -ansi -pedantic src/rshell.cpp -o bin/rshell
+]0;kjue001@hammer:~/rshell[kjue001@hammer rshell]$ bin/rshell
+$ echo hello
+hello
+$ ls -a
+.   bin   LICENSE   README.md		   src	  test.scripp
+..  .git  Makefile  single_command.script  tests  test.script
+$ 
+$ hello jk
+execve failed: No such file or directory
+$ mkdir hw1
+$ ls
+bin  LICENSE   README.md	      src    test.scripp
+hw1  Makefile  single_command.script  tests  test.script
+$ exit
+]0;kjue001@hammer:~/rshell[kjue001@hammer rshell]$ exit
+exit
+
+Script done on Fri 06 Nov 2015 02:14:31 PM PST
