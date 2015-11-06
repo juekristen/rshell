@@ -189,6 +189,8 @@ int main(int argc, char *argv[])
     {
         if(lst.size() <= 6)
         {
+            if(lst.at(0) == "exit")
+                return 0;
             if(lst.at(0) == "#")
             {
                 
