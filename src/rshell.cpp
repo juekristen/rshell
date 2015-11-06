@@ -69,7 +69,8 @@ class CommandLine
             }
             cout << 5 << endl;
             
-            //delete[] temp;
+            delete temp;
+            delete command;
             return;
         }
 };
