@@ -1,5 +1,5 @@
 CC=g++
-CFlags=-c -Wall -Werror -ansi -pedantic
+CFlags=-Wall -Werror -ansi -pedantic
 
 all: files
 
