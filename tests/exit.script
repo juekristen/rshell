@@ -1,0 +1,20 @@
+Script started on Fri 06 Nov 2015 02:41:50 PM PST
+[kjue001@hammer rshell]$ make
+rm -rf bin
+mkdir bin
+g++ -Wall -Werror -ansi -pedantic src/rshell.cpp -o bin/rshell
+[kjue001@hammer rshell]$ bin/rshell
+$ exit
+[kjue001@hammer rshell]$ bin/rshell
+$ ls a
+ls: cannot access a: No such file or directory
+$ ls[-a
+.   bin		 .git	  Makefile   src    test.scripp
+..  exit.script	 LICENSE  README.md  tests  test.script
+$ mkf -a
+execve failed: No such file or directory
+$ exit
+[kjue001@hammer rshell]$ exit
+exit
+
+Script done on Fri 06 Nov 2015 02:43:10 PM PST
