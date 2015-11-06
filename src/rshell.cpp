@@ -75,7 +75,7 @@ class CommandLine
 class Execute
 {
     public:
-        bool go(string cmd, string flag)
+        void go(string cmd, string flag, bool &state)
         {
             pid_t pid, lpid;
             int status;
@@ -91,7 +91,8 @@ class Execute
             {
                 execvp( args[0], (char**)args); 
                 perror("execve failed");
-                return true;
+                state = true;
+                exit(1);
                 //printf("Child: I'm the child: %d\n", pid);
             }
             else if (pid > 0)
@@ -100,17 +101,17 @@ class Execute
                 if( (lpid = wait(&status)) < 0)
                 {
                     perror("wait");
-                    return true;
+                    state = true;
                     exit(1);
                 }
 
             }
             
-            return false;
-            
+            state = false;
+            return;
         }
         
-        bool go(string cmd)
+        void go(string cmd, bool &state)
         {
             pid_t pid, lpid;
             int status;
@@ -126,7 +127,8 @@ class Execute
             {
                 execvp( args[0], (char**)args); 
                 perror("execve failed");
-                return true;
+                state = true;
+                exit(1);
                 //printf("Child: I'm the child: %d\n", pid);
             }
             else if (pid > 0)
@@ -134,15 +136,16 @@ class Execute
                 //printf("Parent: I'm the parent: %d\n", pid);
                 if( (lpid = wait(&status)) < 0)
                 {
-                    
+                    //wait(1);
                     perror("wait");
-                    return true;
+                    state = true;
                     exit(1);
                 }
 
             }
             
-            return false;
+                state = false;
+                return;
             
         }
 
@@ -155,9 +158,9 @@ class Connector
         {
             if(one)
             {
-               return false;
+               return true;
             }
-           return true; 
+           return false; 
         }
         //make sure logic is right
         bool ands(bool one)
@@ -185,6 +188,7 @@ int main(int argc, char *argv[])
     CommandLine cmd;
     Execute ex;
     Connector connect;
+    bool state;
     cmd.start(lst);
     //ex.go("mkdir", "kjue");
     cout << 5 << endl;
@@ -192,7 +196,7 @@ int main(int argc, char *argv[])
     {
         if(lst.size() <= 6)
         {
-            ex.go(lst.at(0),lst.at(1));
+            ex.go(lst.at(0),lst.at(1),state = false);
         }
         if(lst.size() > 6)
         {
@@ -203,41 +207,44 @@ int main(int argc, char *argv[])
             }
             if(lst.at(1) == "#")
             {
-                ex.go(lst.at(1));
+                ex.go(lst.at(1), state = false);
                 return 0;
             }
             if(lst.at(4) == "#")
             {
-                ex.go(lst.at(4));
+                ex.go(lst.at(4), state = false);
                 return 0;
             }
             if(lst.at(2) == "||")
             {
-                bool state = ex.go(lst.at(0),lst.at(1));
-                cout << state << endl;
+                ex.go(lst.at(0),lst.at(1), state = false);
                 bool stat = connect.ors(state);
                 executed.push_back(stat);
-                if(!stat)
+                if(stat)
                 {
-                   executed.push_back(ex.go(lst.at(3),lst.at(4)));
+                    ex.go(lst.at(3),lst.at(4),state = false);
+                    executed.push_back(state);
                 }
             }
-            if(lst.at(2) == "&&")
+            else if(lst.at(2) == "&&")
             {
-                bool state = ex.go(lst.at(0), lst.at(1));
-                cout << state << endl;
+                ex.go(lst.at(0), lst.at(1), state = false);
                 bool stat = connect.ands(state);
+                //cout << stat << endl;
                 executed.push_back(stat);
                 if(stat)
                 {
                     cout << "true" << endl;
-                    executed.push_back(ex.go(lst.at(3),lst.at(4)));
+                    ex.go(lst.at(3),lst.at(4),state = false);
+                    executed.push_back(state);
                 }
             }
-            if(lst.at(2) == ";")
+            else if(lst.at(2) == ";")
             {
-                executed.push_back(ex.go(lst.at(0), lst.at(1)));
-                executed.push_back(ex.go(lst.at(3), lst.at(4)));
+                ex.go(lst.at(0), lst.at(1), state = false);
+                executed.push_back(state);
+                ex.go(lst.at(3), lst.at(4), state = false);
+                executed.push_back(state);
             }
         }
     }
