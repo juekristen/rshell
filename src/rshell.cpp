@@ -19,19 +19,15 @@ class CommandLine
             cout << "$ ";
             getline(cin, cmd);
             command = new char [cmd.length()];
-            cout << "1" << endl;
-            for(int i = 0; i < cmd.size(); ++i)
+            for(unsigned int i = 0; i < cmd.size(); ++i)
             {
                 if(cmd.size() == 0)
                 return;
                 command[i] = cmd[i];
             }
-            cout << "2" << endl;
             command[cmd.size()] = '\0';
-            //vector <char *> test;
             char *temp;
             temp = strtok (command," ;");
-            cout << "3" << endl;
             if(cmd.size() == 0)
                 {
                     return;
@@ -42,32 +38,25 @@ class CommandLine
                 temp = strtok ('\0', "  ;");
             }
             vctr.push_back("\0");
-            cout << "4" << endl;
-            int t = 0;
+            unsigned int t = 0;
             for(vector<string>::iterator i = vctr.begin(); i != vctr.end();++i)
             {
-                cout << 4.1 << endl;
                 if((t + 1) % 3 == 0)
                 {
                     if((vctr.size() - 1) % 3 == 0)
                     {
-                        cout << vctr.size() << endl;
-                        cout << 4.2 << endl;
                         if(t > vctr.size() - 2)
                         {
                             vctr.insert(i,";");
-                            cout << 4.3 << endl;
                         }
                     }
                     else if(*i != "||" && *i != "&&")
                     {
-                        cout << 4.4 << endl;
                         vctr.insert(i,";");
                     }
                 }
                 ++t;
             }
-            cout << 5 << endl;
             
             delete temp;
             delete command;
@@ -113,26 +102,8 @@ class Execute
                         state= true;
                     }
                 }
-                //printf("Parent: I'm the parent: %d\n", pid);
-                // if( (lpid = wait(&status)) < 0)
-                // {
-                //     wait(0);
-                //     state = true;
-                //     exit(1);
-                //     return;
-                //     perror("wait");
-                //     state = true;
-                //     exit(1);
-                // }
-
-            }
-            
-//             if(pid != 0)
-//         {
-//             state = true;
-//             cout << "state" << endl;
-// }
             return;
+            }
         }
         
         void go(string cmd, bool &state)
@@ -157,28 +128,20 @@ class Execute
                 //cout << "after" << state << endl;
                 exit(err);
                 
-                //printf("Child: I'm the child: %d\n", pid);
             }
             else if (pid > 0)
             {
                 wait(&status);
-                //cout << "status" << status << endl;
-                
                 if(WIFEXITED(status))
                 {
-                    if(status == 0)
-                    {
-                        return;
-                    }
-                    else if(status != 0)
+                    if(status != 0)
                     {
                         state= true;
                     }
                 }
-                //return;
             
+            }
         }
-    }
 
 };
 
@@ -222,37 +185,38 @@ int main(int argc, char *argv[])
     bool states = false;
     cmd.start(lst);
     //ex.go("mkdir", "kjue");
-    cout << 5 << endl;
     if(lst.size() != 0)
     {
         if(lst.size() <= 6)
         {
+            if(lst.at(0) == "#")
+            {
+                
+            }
+            else if(lst.at(1) == "#")
+            {
+                ex.go(lst.at(0), states = false);
+            }
+            else
             ex.go(lst.at(0),lst.at(1),states = false);
         }
         if(lst.size() > 6)
         {
-            cout << lst.size() << endl;
-            if(lst.at(0) == "#" || lst.at(3) == "#")
-            {
-                return 0;
-            }
             if(lst.at(1) == "#")
             {
-                ex.go(lst.at(1), states = false);
-                return 0;
+                ex.go(lst.at(0), states = false);
             }
-            if(lst.at(4) == "#")
+            else if(lst.at(4) == "#")
             {
-                ex.go(lst.at(4), states = false);
-                return 0;
+                ex.go(lst.at(3), states = false);
             }
-            if(lst.at(2) == "||")
+            else if(lst.at(2) == "||")
             {
                 //state = false;
                 ex.go(lst.at(0),lst.at(1), states);
-                cout << states << endl;
+                //cout << states << endl;
                 bool stat = connect.ors(states);
-                cout << stat << endl;
+                //cout << stat << endl;
                 executed.push_back(stat);
                 if(stat)
                 {
@@ -263,13 +227,12 @@ int main(int argc, char *argv[])
             else if(lst.at(2) == "&&")
             {
                 ex.go(lst.at(0), lst.at(1), states);
-                cout << states << endl;
+                //cout << states << endl;
                 bool stat = connect.ands(states);
-                cout << stat << endl;
+                //cout << stat << endl;
                 executed.push_back(stat);
                 if(!stat)
                 {
-                    cout << "true" << endl;
                     ex.go(lst.at(3),lst.at(4),states = false);
                     executed.push_back(states);
                 }
@@ -285,21 +248,14 @@ int main(int argc, char *argv[])
     }
         if(lst.size() > 7)
         {
-            cout << "second" << endl;
             //cout << lst.at(6) << endl;
-            for (int i = 5; i < lst.size()-2; i = i + 3)
+            for (unsigned int i = 5; i < lst.size()-2; i = i + 3)
             {
-                
-                if(lst.at(i + 1) == "#")
-                {
-                    return 0;
-                }
                 if(lst.at(i+ 2) == "#")
                 {
                     ex.go(lst.at(i + 1), states = false);
-                    return 0;
                 }
-                if(lst.at(i) == "||")
+                else if(lst.at(i) == "||")
                 {
                     if(executed.at(executed.size()-1))
                     {
@@ -310,7 +266,6 @@ int main(int argc, char *argv[])
                 
                 else if(lst.at(i) == "&&")
                 {
-                    cout << "and" << endl;
                     if(!executed.at(executed.size()-1))
                     {
                         ex.go(lst.at(i + 1), lst.at(i + 2), states = false);
@@ -326,7 +281,6 @@ int main(int argc, char *argv[])
                 
             }
         }
-    cout << 6 << endl;
     while(lst.size() == 0 || lst.at(0) != "exit")
     {
         lst.clear();
@@ -334,112 +288,105 @@ int main(int argc, char *argv[])
         if(lst.size() != 0 && lst.at(0) != "exit")
         {
             if(lst.size() != 0)
-    {
-        if(lst.size() <= 6)
-        {
-            ex.go(lst.at(0),lst.at(1),states = false);
-        }
-        if(lst.size() > 6)
-        {
-            cout << lst.size() << endl;
-            if(lst.at(0) == "#" || lst.at(3) == "#")
             {
-                return 0;
-            }
-            if(lst.at(1) == "#")
-            {
-                ex.go(lst.at(1), states = false);
-                return 0;
-            }
-            if(lst.at(4) == "#")
-            {
-                ex.go(lst.at(4), states = false);
-                return 0;
-            }
-            if(lst.at(2) == "||")
-            {
-                //state = false;
-                ex.go(lst.at(0),lst.at(1), states);
-                cout << states << endl;
-                bool stat = connect.ors(states);
-                cout << stat << endl;
-                executed.push_back(stat);
-                if(stat)
+                if(lst.size() <= 6)
                 {
-                    ex.go(lst.at(3),lst.at(4),states = false);
-                    executed.push_back(states);
+                    if(lst.at(0) == "#")
+                    {
+                        
+                    }
+                    else if(lst.at(1) == "#")
+                    {
+                        ex.go(lst.at(0), states = false);
+                    }
+                    else
+                    ex.go(lst.at(0),lst.at(1),states = false);
+                }
+                if(lst.size() > 6)
+                {
+                    if(lst.at(1) == "#")
+                    {
+                        ex.go(lst.at(0), states = false);
+                    }
+                    else if(lst.at(4) == "#")
+                    {
+                        ex.go(lst.at(3), states = false);
+                    }
+                    else if(lst.at(2) == "||")
+                    {
+                        //state = false;
+                        ex.go(lst.at(0),lst.at(1), states);
+                        //cout << states << endl;
+                        bool stat = connect.ors(states);
+                        //cout << stat << endl;
+                        executed.push_back(stat);
+                        if(stat)
+                        {
+                            ex.go(lst.at(3),lst.at(4),states = false);
+                            executed.push_back(states);
+                        }
+                    }
+                    else if(lst.at(2) == "&&")
+                    {
+                        ex.go(lst.at(0), lst.at(1), states);
+                        //cout << states << endl;
+                        bool stat = connect.ands(states);
+                        //cout << stat << endl;
+                        executed.push_back(stat);
+                        if(!stat)
+                        {
+                            ex.go(lst.at(3),lst.at(4),states = false);
+                            executed.push_back(states);
+                        }
+                    }
+                    else if(lst.at(2) == ";")
+                    {
+                        ex.go(lst.at(0), lst.at(1), states = false);
+                        executed.push_back(states);
+                        ex.go(lst.at(3), lst.at(4), states = false);
+                        executed.push_back(states);
+                    }
                 }
             }
-            else if(lst.at(2) == "&&")
+            if(lst.size() > 7)
             {
-                ex.go(lst.at(0), lst.at(1), states);
-                cout << states << endl;
-                bool stat = connect.ands(states);
-                cout << stat << endl;
-                executed.push_back(stat);
-                if(!stat)
+                //cout << lst.at(6) << endl;
+                for (unsigned int i = 5; i < lst.size()-2; i = i + 3)
                 {
-                    cout << "true" << endl;
-                    ex.go(lst.at(3),lst.at(4),states = false);
-                    executed.push_back(states);
-                }
-            }
-            else if(lst.at(2) == ";")
-            {
-                ex.go(lst.at(0), lst.at(1), states = false);
-                executed.push_back(states);
-                ex.go(lst.at(3), lst.at(4), states = false);
-                executed.push_back(states);
-            }
-        }
-    }
-        if(lst.size() > 7)
-        {
-            cout << "second" << endl;
-            //cout << lst.at(6) << endl;
-            for (int i = 5; i < lst.size()-2; i = i + 3)
-            {
-                
-                if(lst.at(i + 1) == "#")
-                {
-                    return 0;
-                }
-                if(lst.at(i+ 2) == "#")
-                {
-                    ex.go(lst.at(i + 1), states = false);
-                    return 0;
-                }
-                if(lst.at(i) == "||")
-                {
-                    if(executed.at(executed.size()-1))
+                    if(lst.at(i+ 2) == "#")
+                    {
+                        ex.go(lst.at(i + 1), states = false);
+                        return 0;
+                    }
+                    else if(lst.at(i) == "||")
+                    {
+                        if(executed.at(executed.size()-1))
+                        {
+                            ex.go(lst.at(i + 1), lst.at(i + 2), states = false);
+                            executed.push_back(states);
+                        }
+                    }
+                    
+                    else if(lst.at(i) == "&&")
+                    {
+                        if(!executed.at(executed.size()-1))
+                        {
+                            ex.go(lst.at(i + 1), lst.at(i + 2), states = false);
+                            executed.push_back(states);
+                        }
+                    }
+                     
+                    else if(lst.at(i) == ";")
                     {
                         ex.go(lst.at(i + 1), lst.at(i + 2), states = false);
                         executed.push_back(states);
                     }
+                    
                 }
-                
-                else if(lst.at(i) == "&&")
-                {
-                    cout << "and" << endl;
-                    if(!executed.at(executed.size()-1))
-                    {
-                        ex.go(lst.at(i + 1), lst.at(i + 2), states = false);
-                        executed.push_back(states);
-                    }
-                }
-                 
-                else if(lst.at(i) == ";")
-                {
-                    ex.go(lst.at(i + 1), lst.at(i + 2), states = false);
-                    executed.push_back(states);
-                }
-                
             }
+            }
+            
         }
-        }
-        
-    }
-    cout << "done" << endl;
-    
+   
     return 0;
 }
