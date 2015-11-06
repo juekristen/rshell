@@ -12,6 +12,7 @@ using namespace std;
 class CommandLine
 {
     public:
+        //takes user input and puts it into a vector
         void start(vector <string> &vctr)
         {
             string cmd;
@@ -27,6 +28,7 @@ class CommandLine
             }
             command[cmd.size()] = '\0';
             char *temp;
+            //use strtok in order to slice the commands
             temp = strtok (command," ;");
             if(cmd.size() == 0)
                 {
@@ -50,6 +52,7 @@ class CommandLine
                             vctr.insert(i,";");
                         }
                     }
+                    //inputs a semicolon if there needs to be one
                     else if(*i != "||" && *i != "&&")
                     {
                         vctr.insert(i,";");
@@ -66,6 +69,7 @@ class CommandLine
 class Execute
 {
     public:
+        // executes commands if there is a command and a flag also records the state
         void go(string cmd, string flag, bool &state)
         {
             int status;
@@ -97,6 +101,7 @@ class Execute
                 
                 if(WIFEXITED(status))
                 {
+                    // if execution does not succeed then the state is true
                     if(status != 0)
                     {
                         state= true;
@@ -105,7 +110,7 @@ class Execute
             return;
             }
         }
-        
+        // executes a command without a flag and records state
         void go(string cmd, bool &state)
         {
             pid_t pid;
@@ -148,6 +153,7 @@ class Execute
 class Connector
 {
     public:
+        // logic for or connector
         bool ors(bool one)
         {
             if(one)
@@ -156,7 +162,7 @@ class Connector
             }
            return false; 
         }
-        //make sure logic is right
+        //logic for and connector
         bool ands(bool one)
         {
             if(one)
@@ -165,10 +171,12 @@ class Connector
             }
             return false;
         }
+        //logic for semicolon 
         bool semi(bool one)
         {
             return false;
         }
+        // logic for hash function
         bool hash()
         {
             return true;
@@ -185,8 +193,10 @@ int main(int argc, char *argv[])
     bool states = false;
     cmd.start(lst);
     //ex.go("mkdir", "kjue");
+    // executes first command line
     if(lst.size() != 0)
     {
+        //  if the command line has less than two arguements
         if(lst.size() <= 6)
         {
             if(lst.at(0) == "exit")
@@ -195,6 +205,10 @@ int main(int argc, char *argv[])
             {
                 
             }
+            else if(lst.size() == 2)
+            {
+                ex.go(lst.at(0), states = false);
+            }
             else if(lst.at(1) == "#")
             {
                 ex.go(lst.at(0), states = false);
@@ -202,6 +216,7 @@ int main(int argc, char *argv[])
             else
             ex.go(lst.at(0),lst.at(1),states = false);
         }
+        // if the command line has at least 2 commands
         if(lst.size() > 6)
         {
             if(lst.at(1) == "#")
@@ -248,6 +263,7 @@ int main(int argc, char *argv[])
             }
         }
     }
+        //if the command line has more than 2 commands
         if(lst.size() > 7)
         {
             //cout << lst.at(6) << endl;
@@ -283,6 +299,8 @@ int main(int argc, char *argv[])
                 
             }
         }
+        
+    //executes subsequent command lines
     while(lst.size() == 0 || lst.at(0) != "exit")
     {
         lst.clear();
@@ -298,6 +316,10 @@ int main(int argc, char *argv[])
                         
                     }
                     else if(lst.at(1) == "#")
+                    {
+                        ex.go(lst.at(0), states = false);
+                    }
+                    else if(lst.size() == 2)
                     {
                         ex.go(lst.at(0), states = false);
                     }
