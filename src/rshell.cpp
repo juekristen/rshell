@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <vector>
 #include <string.h>
+#include <errno.h>
 
 using namespace std;
 class CommandLine
@@ -77,8 +78,8 @@ class Execute
     public:
         void go(string cmd, string flag, bool &state)
         {
-            pid_t pid, lpid;
             int status;
+            pid_t pid;
             pid = fork();  
             const char* args[3] = { cmd.c_str(), flag.c_str(), '\0'} ;
             
@@ -89,65 +90,94 @@ class Execute
             }
             else if( pid == 0 )
             {
-                execvp( args[0], (char**)args); 
+                execvp( args[0], (char**)args);
+                //cout << "before" << state << endl;
+                //state = true;
+                int err = errno;
                 perror("execve failed");
-                state = true;
-                exit(1);
+                //cout << "after" << state << endl;
+                exit(err);
+                
                 //printf("Child: I'm the child: %d\n", pid);
             }
             else if (pid > 0)
             {
-                //printf("Parent: I'm the parent: %d\n", pid);
-                if( (lpid = wait(&status)) < 0)
+                wait(&status);
+                //cout << "status" << status << endl;
+                
+                if(WIFEXITED(status))
                 {
-                    perror("wait");
-                    state = true;
-                    exit(1);
+                    if(status != 0)
+                    {
+                        state= true;
+                    }
                 }
+                //printf("Parent: I'm the parent: %d\n", pid);
+                // if( (lpid = wait(&status)) < 0)
+                // {
+                //     wait(0);
+                //     state = true;
+                //     exit(1);
+                //     return;
+                //     perror("wait");
+                //     state = true;
+                //     exit(1);
+                // }
 
             }
             
-            state = false;
+//             if(pid != 0)
+//         {
+//             state = true;
+//             cout << "state" << endl;
+// }
             return;
         }
         
         void go(string cmd, bool &state)
         {
-            pid_t pid, lpid;
+            pid_t pid;
             int status;
             pid = fork();  
             const char* args[2] = { cmd.c_str(), '\0'} ;
             
-            if(pid < 0)
+             if(pid < 0)
             {                                                                                                                                  
                 perror("fork failed");
                 exit(1);                                                                                                                                        
             }
             else if( pid == 0 )
             {
-                execvp( args[0], (char**)args); 
+                execvp( args[0], (char**)args);
+                //cout << "before" << state << endl;
+                //state = true;
+                int err = errno;
                 perror("execve failed");
-                state = true;
-                exit(1);
+                //cout << "after" << state << endl;
+                exit(err);
+                
                 //printf("Child: I'm the child: %d\n", pid);
             }
             else if (pid > 0)
             {
-                //printf("Parent: I'm the parent: %d\n", pid);
-                if( (lpid = wait(&status)) < 0)
+                wait(&status);
+                //cout << "status" << status << endl;
+                
+                if(WIFEXITED(status))
                 {
-                    //wait(1);
-                    perror("wait");
-                    state = true;
-                    exit(1);
+                    if(status == 0)
+                    {
+                        return;
+                    }
+                    else if(status != 0)
+                    {
+                        state= true;
+                    }
                 }
-
-            }
-            
-                state = false;
-                return;
+                //return;
             
         }
+    }
 
 };
 
@@ -167,9 +197,9 @@ class Connector
         {
             if(one)
             {
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
         bool semi(bool one)
         {
@@ -188,7 +218,7 @@ int main(int argc, char *argv[])
     CommandLine cmd;
     Execute ex;
     Connector connect;
-    bool state;
+    bool states = false;
     cmd.start(lst);
     //ex.go("mkdir", "kjue");
     cout << 5 << endl;
@@ -196,7 +226,7 @@ int main(int argc, char *argv[])
     {
         if(lst.size() <= 6)
         {
-            ex.go(lst.at(0),lst.at(1),state = false);
+            ex.go(lst.at(0),lst.at(1),states = false);
         }
         if(lst.size() > 6)
         {
@@ -207,98 +237,110 @@ int main(int argc, char *argv[])
             }
             if(lst.at(1) == "#")
             {
-                ex.go(lst.at(1), state = false);
+                ex.go(lst.at(1), states = false);
                 return 0;
             }
             if(lst.at(4) == "#")
             {
-                ex.go(lst.at(4), state = false);
+                ex.go(lst.at(4), states = false);
                 return 0;
             }
             if(lst.at(2) == "||")
             {
-                ex.go(lst.at(0),lst.at(1), state = false);
-                bool stat = connect.ors(state);
+                //state = false;
+                ex.go(lst.at(0),lst.at(1), states);
+                cout << states << endl;
+                bool stat = connect.ors(states);
+                cout << stat << endl;
                 executed.push_back(stat);
                 if(stat)
                 {
-                    ex.go(lst.at(3),lst.at(4),state = false);
-                    executed.push_back(state);
+                    ex.go(lst.at(3),lst.at(4),states = false);
+                    executed.push_back(states);
                 }
             }
             else if(lst.at(2) == "&&")
             {
-                ex.go(lst.at(0), lst.at(1), state = false);
-                bool stat = connect.ands(state);
-                //cout << stat << endl;
+                ex.go(lst.at(0), lst.at(1), states);
+                cout << states << endl;
+                bool stat = connect.ands(states);
+                cout << stat << endl;
                 executed.push_back(stat);
-                if(stat)
+                if(!stat)
                 {
                     cout << "true" << endl;
-                    ex.go(lst.at(3),lst.at(4),state = false);
-                    executed.push_back(state);
+                    ex.go(lst.at(3),lst.at(4),states = false);
+                    executed.push_back(states);
                 }
             }
             else if(lst.at(2) == ";")
             {
-                ex.go(lst.at(0), lst.at(1), state = false);
-                executed.push_back(state);
-                ex.go(lst.at(3), lst.at(4), state = false);
-                executed.push_back(state);
+                ex.go(lst.at(0), lst.at(1), states = false);
+                executed.push_back(states);
+                ex.go(lst.at(3), lst.at(4), states = false);
+                executed.push_back(states);
             }
         }
     }
-    //     for (int i = 0; i < lst.size()-2; i = i + 3)
-    //     {
-            
-    //         if(lst.at(i) == "#")
-    //         {
-    //             return 0;
-    //         }
-    //         if(lst.at(i+1) == "#")
-    //         {
-    //             ex.go(lst.at(i));
-    //             return 0;
-    //         }
-    //         if(lst.at(i + 2) == "||")
-    //         {
-    //             bool stat = connect.ors(ex.go(lst.at(i), lst.at(i+1)));
-    //             executed.push_back(stat);
-    //             // if(!stat)
-    //             // {
-    //             //     executed.push_back()
-    //             // }
-    //         }
-            
-    //         else if(lst.at(i + 2) == "&&")
-    //         {
-    //             executed.push_back(connect.ands(ex.go(lst.at(i), lst.at(i+1))));
-    //         }
-             
-    //         // else if(lst.at(i + 2) == ";")
-    //         // {
-    //         //     executed.push_back()
-    //         // }
-    //         cout << ex.go(lst.at(i), lst.at(i+1)) << endl;
-    //         cout << lst.at(i) << endl;
-    //     }
-    
-    // cout << 6 << endl;
-    // while(lst.size() == 0 || lst.at(0) != "exit")
-    // {
-    //     lst.clear();
-    //     cmd.start(lst);
-    //     if(lst.size() != 0 && lst.at(0) != "exit")
-    //     {
-    //         for (int i = 0; i < lst.size() - 2; i = i + 3)
-    //         {
-    //             ex.go(lst.at(i), lst.at(i+1));
-    //             cout << lst.at(i) << endl;
-    //         }
-    //     }
+        if(lst.size() > 7)
+        {
+            cout << "second" << endl;
+            //cout << lst.at(6) << endl;
+            for (int i = 5; i < lst.size()-2; i = i + 3)
+            {
+                
+                if(lst.at(i + 1) == "#")
+                {
+                    return 0;
+                }
+                if(lst.at(i+ 2) == "#")
+                {
+                    ex.go(lst.at(i + 1), states = false);
+                    return 0;
+                }
+                if(lst.at(i) == "||")
+                {
+                    if(executed.at(executed.size()-1))
+                    {
+                        ex.go(lst.at(i + 1), lst.at(i + 2), states = false);
+                        executed.push_back(states);
+                    }
+                }
+                
+                else if(lst.at(i) == "&&")
+                {
+                    cout << "and" << endl;
+                    if(!executed.at(executed.size()-1))
+                    {
+                        ex.go(lst.at(i + 1), lst.at(i + 2), states = false);
+                        executed.push_back(states);
+                    }
+                }
+                 
+                else if(lst.at(i) == ";")
+                {
+                    ex.go(lst.at(i + 1), lst.at(i + 2), states = false);
+                    executed.push_back(states);
+                }
+                
+            }
+        }
+    cout << 6 << endl;
+    while(lst.size() == 0 || lst.at(0) != "exit")
+    {
+        lst.clear();
+        cmd.start(lst);
+        if(lst.size() != 0 && lst.at(0) != "exit")
+        {
+            for (int i = 0; i < lst.size() - 2; i = i + 3)
+            {
+                ex.go(lst.at(i), lst.at(i+1));
+                cout << lst.at(i) << endl;
+            }
+        }
         
-    // }
-    // cout << "done" << endl;
+    }
+    cout << "done" << endl;
     
     return 0;
 }
