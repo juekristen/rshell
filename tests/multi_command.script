@@ -1,0 +1,44 @@
+Script started on Fri 06 Nov 2015 02:19:03 PM PST
+]0;kjue001@hammer:~/rshell[?1034h[kjue001@hammer rshell]$ make
+rm -rf bin
+mkdir bin
+g++ -Wall -Werror -ansi -pedantic src/rshell.cpp -o bin/rshell
+]0;kjue001@hammer:~/rshell[kjue001@hammer rshell]$ bin/rshell
+$ echo hello
+hello
+$ ls    echo hell  o || ls -a
+hello
+$ echo  helo || ls -a
+execve failed: No such file or directory
+.   bin   hw1	   Makefile		 README.md  tests	 test.script
+..  .git  LICENSE  multi_command.script  src	    test.scripp
+$ echo hello && ls -a
+hello
+.   bin   hw1	   Makefile		 README.md  tests	 test.script
+..  .git  LICENSE  multi_command.script  src	    test.scripp
+$ echo hello || ks a    la   s -a && ecg ho goodbye; ehc  cho hi
+hello
+goodbye
+hi
+$ mki -c || ls -a && echo es  see || echo ya
+execve failed: No such file or directory
+.   bin   hw1	   Makefile		 README.md  tests	 test.script
+..  .git  LICENSE  multi_command.script  src	    test.scripp
+see
+$ mki c -c && ls -a || echo hiay  ya  ; ls    echo by ya
+execve failed: No such file or directory
+hiya
+bya
+$ mki -d || mkd -p || ls -a
+execve failed: No such file or directory
+execve failed: No such file or directory
+.   bin   hw1	   Makefile		 README.md  tests	 test.script
+..  .git  LICENSE  multi_command.script  src	    test.scripp
+$ echo hi; mki hi; ls -a; thisdoe    doesnt
+hi
+execve failed: No such file or directory
+$ exit
+]0;kjue001@hammer:~/rshell[kjue001@hammer rshell]$ exit
+exit
+
+Script done on Fri 06 Nov 2015 02:25:49 PM PST
