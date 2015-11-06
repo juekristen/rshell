@@ -1,0 +1,16 @@
+Script started on Fri 06 Nov 2015 02:38:43 PM PST
+[kjue001@hammer rshell]$ make
+rm -rf bin
+mkdir bin
+g++ -Wall -Werror -ansi -pedantic src/rshell.cpp -o bin/rshell
+[kjue001@hammer rshell]$ bin/rshell
+$ #
+$ ls # hi
+bin			  LICENSE   README.md  tests	    test.script
+commented_command.script  Makefile  src	       test.scripp
+$ # hiya
+$ exit
+[kjue001@hammer rshell]$ exit
+exit
+
+Script done on Fri 06 Nov 2015 02:40:04 PM PST
