@@ -7,62 +7,87 @@
 #include <vector>
 #include <string.h>
 #include <errno.h>
-
+#include <boost/foreach.hpp>
+#include <boost/tokenizer.hpp>
 using namespace std;
+using namespace boost;
+
 class CommandLine
 {
     public:
         //takes user input and puts it into a vector
+        void split(vector <string> &vctr, char seper, string cmd)
+        {
+            int state = 0;
+            if(cmd.at(0) == '(' && seper == '(')
+                 state = 1;
+            if(cmd.at(cmd.size()-1) == ')' && seper == ')')
+                state = 2;
+            int a = 0,b = 0;
+            char* sepa;
+            sepa = &seper;
+            string s1(1,seper);
+            string s2(2,seper);
+            char_separator<char> sep(sepa);
+            tokenizer< char_separator<char> > tokens(cmd, sep);
+            BOOST_FOREACH (const string& t, tokens) 
+            {
+                if(t != "/0")
+                ++a;
+            }
+            BOOST_FOREACH (const string& t, tokens) 
+            {
+                ++b;
+                
+                //if(seper )
+                if (state == 1)
+                {
+                    vctr.push_back(s1);
+                }
+                if(t != " ")
+                vctr.push_back(t);
+                if(state == 2)
+                {
+                    vctr.push_back(s1);
+                }
+                if(b != a)
+                {
+                    if(seper == ';' || seper == '#'|| seper == '(' || seper == ')')
+                    vctr.push_back(s1);
+                    else if(seper == '|' || seper == '&')
+                    vctr.push_back(s2);
+                }
+                else if(seper == ')' && b == a && a != 1 && t != " " )
+                    vctr.push_back(s1);
+                
+                
+                //cout << t << "." << endl;
+            }
+        }
+        
         void start(vector <string> &vctr)
         {
             string cmd;
-            char *command;
+            vector <string> temp;
+            
             cout << "$ ";
             getline(cin, cmd);
-            command = new char [cmd.length()];
-            for(unsigned int i = 0; i < cmd.size(); ++i)
-            {
-                if(cmd.size() == 0)
-                return;
-                command[i] = cmd[i];
-            }
-            command[cmd.size()] = '\0';
-            char *temp;
-            //use strtok in order to slice the commands
-            temp = strtok (command," ;");
-            if(cmd.size() == 0)
-                {
-                    return;
-                }
-            while (temp != '\0')
-            {
-                vctr.push_back(temp);
-                temp = strtok ('\0', "  ;");
-            }
-            vctr.push_back("\0");
-            unsigned int t = 0;
-            for(vector<string>::iterator i = vctr.begin(); i != vctr.end();++i)
-            {
-                if((t + 1) % 3 == 0)
-                {
-                    if((vctr.size() - 1) % 3 == 0)
-                    {
-                        if(t > vctr.size() - 2)
-                        {
-                            vctr.insert(i,";");
-                        }
-                    }
-                    //inputs a semicolon if there needs to be one
-                    else if(*i != "||" && *i != "&&")
-                    {
-                        vctr.insert(i,";");
-                    }
-                }
-                ++t;
-            }
-            
-            delete temp;
-            delete command;
+            split(vctr,';',cmd);
+            for(int i = 0; i < vctr.size(); ++i)
+                split(temp,'|',vctr.at(i));
+            vctr.clear();
+            for(int i = 0; i < temp.size(); ++i)
+                split(vctr, '&', temp.at(i));
+            temp.clear();
+            for(int i = 0; i < vctr.size(); ++i)
+                split(temp, '(', vctr.at(i));
+            vctr.clear();
+            for(int i = 0; i < temp.size(); ++i)
+                split(vctr, '#', temp.at(i));
+            temp.clear();
+            for(int i = 0; i < vctr.size(); ++i)
+                split(temp, ')', vctr.at(i));
+            temp.swap(vctr);
             return;
         }
 };
@@ -147,6 +172,7 @@ class Execute
             
             }
         }
+        
 
 };
 
