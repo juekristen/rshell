@@ -85,19 +85,19 @@ class CommandLine
             //cout << vctr.size() << endl;
             if(vctr.size() != 0)
             {
-                for(int i = 0; i < vctr.size(); ++i)
+                for(unsigned int i = 0; i < vctr.size(); ++i)
                     split(temp,'|',vctr.at(i));
                 vctr.clear();
-                for(int i = 0; i < temp.size(); ++i)
+                for(unsigned int i = 0; i < temp.size(); ++i)
                     split(vctr, '&', temp.at(i));
                 temp.clear();
-                for(int i = 0; i < vctr.size(); ++i)
+                for(unsigned int i = 0; i < vctr.size(); ++i)
                     split(temp, '(', vctr.at(i));
                 vctr.clear();
                 // for(int i = 0; i < temp.size(); ++i)
                 //     split(vctr, '#', temp.at(i));
                 // temp.clear();
-                for(int i = 0; i < temp.size(); ++i)
+                for(unsigned int i = 0; i < temp.size(); ++i)
                     split(vctr, ')', temp.at(i));
                 //temp.swap(vctr);
             }
@@ -221,7 +221,7 @@ class Execute : public Connector
             }
         }
         
-        void execute(int &loc, string cmd, vector <string> &cmds, vector <bool> &states)
+        void execute(unsigned int &loc, string cmd, vector <string> &cmds, vector <bool> &states)
         {
             //cout << "execute" << endl;
             if(cmds.size() != 0)
@@ -248,36 +248,7 @@ class Execute : public Connector
                     loc++;
                     //cout << " anotehr" << endl;
                     return;
-                    // int i = loc;
-                    // vector <string> temp;
-                    // while(cmds.at(i) != ")")
-                    // {
-                    //     temp.push_back(cmds.at(i));
-                    //     ++i;
-                    // }
-                    // loc = i;
-                    // int p = 1;
-                    // while(p < temp.size())
-                    // {
-                    //     string word = temp.at(p);
-                    //     loc++;
-                    //     ++p;
-                    //     //cout << "main" << endl;
-                    //     execute(loc, word ,cmds,states);
-                    //     //cout << i << endl;
-                    // }
-                    // string word = cmds.at(loc);
-                    // while(word != ")")
-                    // {
-                    //     cout << cmd << 40 << endl;
-                    //     if(loc != cmds.size()-1)
-                    //     {
-                    //         loc++;
-                    //     }
-                    //     word = cmds.at(loc);
-                    //     execute(loc, word, cmds, states);
-                        
-                    // }
+                    
                 
                 }
                 else if(cmd == ")")
@@ -300,82 +271,155 @@ class Execute : public Connector
                         //cout << 2.2 << endl;
                         if(single.at(0) == "test" || single.at(0) == "[")
                         {
-                            struct stat tester;
+                            struct stat sb;
                             if(single.size() < 3)
-                                stat(single.at(1).c_str(),&tester);
-                            else if(single.size() == 3)
-                                stat(single.at(2).c_str(),&tester);
-                            
-                            if(single.size() < 3 || single.at(1) == "-e")
                             {
-                                if(S_ISREG(tester.st_mode) || S_ISDIR(tester.st_mode))
+                                stat(single.at(1).c_str(), &sb);
+                                if(single.size() < 3)
                                 {
-                                    states.push_back(false);
+                                    //cout << (S_ISREG(sb.st_mode) || S_ISDIR(sb.st_mode) )<< endl;
+                                    if(S_ISREG(sb.st_mode) || S_ISDIR(sb.st_mode))
+                                    {
+                                        states.push_back(false);
+                                    }
+                                    else
+                                    {
+                                        // ++loc;
+                                        states.push_back(true);
+                                    }
+                                
                                 }
-                                else
-                                states.push_back(true);
+                                
+                                ++loc;
+                                return;
                             }
-                            else if(single.at(1) == "-f")
+                            
+                            
+                            else if(single.size() >= 3)
                             {
-                                if((S_ISREG(tester.st_mode)))
-                                    states.push_back(false);
-                                else 
-                                    states.push_back(true);
+                                stat(single.at(2).c_str(),&sb);
+                                
+                                if(single.at(1) == "-e")
+                                {
+                                    if(S_ISREG(sb.st_mode) || S_ISDIR(sb.st_mode))
+                                    {
+                                        states.push_back(false);
+                                    }
+                                    else
+                                    {
+                                        //++loc;
+                                        states.push_back(true);
+                                    }
+                                }
+                                else if(single.at(1) == "-f")
+                                {
+                                    if((S_ISREG(sb.st_mode)))
+                                        states.push_back(false);
+                                    else
+                                    {
+                                        //++loc;
+                                        states.push_back(true);
+                                    }
+                                }
+                                else if(single.at(1) == "-d")
+                                {
+                                    if(S_ISDIR(sb.st_mode))
+                                        states.push_back(false);
+                                    else
+                                    {
+                                        //++loc;
+                                        states.push_back(true);
+                                    }
+                                }
+                                
+                               ++loc; 
+                               return;
                             }
-                            else if(single.at(1) == "-d")
-                            {
-                                if(S_ISDIR(tester.st_mode))
-                                    states.push_back(false);
-                                else
-                                    states.push_back(true);
-                            }
+                            
                         }
-                        if(single.size() == 1)
-                        go(single.at(0),st);
-                        else 
-                        go(single.at(0), single.at(1),st);
-                        ++loc;
-                        bool stat = connect.ors(st);
-                        states.push_back(stat);
-                        if(single.at(single.size()-1) == "#")
-                            loc = cmds.size();
-                    }
+                                else if(single.size() == 1)
+                                go(single.at(0),st);
+                                else 
+                                go(single.at(0), single.at(1),st);
+                                ++loc;
+                                bool stat = connect.ors(st);
+                                states.push_back(stat);
+                                if(single.at(single.size()-1) == "#")
+                                    loc = cmds.size();
+                            }
+                    
                     else if (loc > 1)
                     {
                         if(single.at(0) == "test" || single.at(0) == "[")
                         {
-                            struct stat tester;
+                            struct stat sb;
                             if(single.size() < 3)
-                                stat(single.at(1).c_str(),&tester);
-                            else if(single.size() == 3)
-                                stat(single.at(2).c_str(),&tester);
-                            
-                            if(single.size() < 3 || single.at(1) == "-e")
                             {
-                                if(S_ISREG(tester.st_mode) || S_ISDIR(tester.st_mode))
+                                stat(single.at(1).c_str(), &sb);
+                                if(single.size() < 3)
                                 {
-                                    states.push_back(false);
+                                    cout << (S_ISREG(sb.st_mode) || S_ISDIR(sb.st_mode) )<< endl;
+                                    if(S_ISREG(sb.st_mode) || S_ISDIR(sb.st_mode))
+                                    {
+                                        states.push_back(false);
+                                    }
+                                    else
+                                    {
+                                        // ++loc;
+                                        states.push_back(true);
+                                    }
+                                
                                 }
-                                else
-                                states.push_back(true);
+                                
+                            ++loc;
+                            return;
                             }
-                            else if(single.at(1) == "-f")
+                            
+                            
+                            else if(single.size() >= 3)
                             {
-                                if((S_ISREG(tester.st_mode)))
-                                    states.push_back(false);
-                                else 
-                                    states.push_back(true);
+                                stat(single.at(2).c_str(),&sb);
+                                
+                                if(single.at(1) == "-e")
+                                {
+                                    if(S_ISREG(sb.st_mode) || S_ISDIR(sb.st_mode))
+                                    {
+                                        states.push_back(false);
+                                    }
+                                    else
+                                    {
+                                        //++loc;
+                                        states.push_back(true);
+                                    }
+                                }
+                                else if(single.at(1) == "-f")
+                                {
+                                    if((S_ISREG(sb.st_mode)))
+                                        states.push_back(false);
+                                    else
+                                    {
+                                        //++loc;
+                                        states.push_back(true);
+                                    }
+                                }
+                                else if(single.at(1) == "-d")
+                                {
+                                    if(S_ISDIR(sb.st_mode))
+                                        states.push_back(false);
+                                    else
+                                    {
+                                        //++loc;
+                                        states.push_back(true);
+                                    }
+                                }
+                                
+                                
                             }
-                            else if(single.at(1) == "-d")
-                            {
-                                if(S_ISDIR(tester.st_mode))
-                                    states.push_back(false);
-                                else
-                                    states.push_back(true);
-                            }
-                        }
+                            ++loc;
+                            return;
+                    }
                         //cout << 2.3 << endl;
-                        if(cmds.at(loc - 1) == "||" || (cmds.at(loc - 1) == "(" && cmds.at(loc - 2) == "||"))
+                        else if(cmds.at(loc - 1) == "||" || (cmds.at(loc - 1) == "(" && cmds.at(loc - 2) == "||"))
                         {
                             
                             //cout << states.at(states.size()-1) << endl;
@@ -404,6 +448,8 @@ class Execute : public Connector
                             //cout << 300 <<endl;
                             if(states.size() != 0)
                             {
+                                // cout << "Staes" << states.at(states.size() - 1) << endl;
+                                // cout << "Size" << states.size() << endl;
                                 //cout << 400 << endl;
                                 if(!states.at(states.size()-1))
                                 {
@@ -439,99 +485,13 @@ class Execute : public Connector
                     //cout << 3 << endl;
                     loc++;
                 }
-            }
+            
             return;
+        }
         }
         
 
 };
-
-// class Execute
-// {
-//     public:
-//         // executes commands if there is a command and a flag also records the state
-//         void go(string cmd, string flag, bool &state)
-//         {
-//             int status;
-//             pid_t pid;
-//             pid = fork();  
-//             const char* args[3] = { cmd.c_str(), flag.c_str(), '\0'} ;
-            
-//             if(pid < 0)
-//             {                                                                                                                                  
-//                 perror("fork failed");
-//                 exit(1);                                                                                                                                        
-//             }
-//             else if( pid == 0 )
-//             {
-//                 execvp( args[0], (char**)args);
-//                 //cout << "before" << state << endl;
-//                 //state = true;
-//                 int err = errno;
-//                 perror("execve failed");
-//                 //cout << "after" << state << endl;
-//                 exit(err);
-                
-//                 //printf("Child: I'm the child: %d\n", pid);
-//             }
-//             else if (pid > 0)
-//             {
-//                 wait(&status);
-//                 //cout << "status" << status << endl;
-                
-//                 if(WIFEXITED(status))
-//                 {
-//                     // if execution does not succeed then the state is true
-//                     if(status != 0)
-//                     {
-//                         state= true;
-//                     }
-//                 }
-//             return;
-//             }
-//         }
-//         // executes a command without a flag and records state
-//         void go(string cmd, bool &state)
-//         {
-//             pid_t pid;
-//             int status;
-//             pid = fork();  
-//             const char* args[2] = { cmd.c_str(), '\0'} ;
-            
-//              if(pid < 0)
-//             {                                                                                                                                  
-//                 perror("fork failed");
-//                 exit(1);                                                                                                                                        
-//             }
-//             else if( pid == 0 )
-//             {
-//                 execvp( args[0], (char**)args);
-//                 //cout << "before" << state << endl;
-//                 //state = true;
-//                 int err = errno;
-//                 perror("execve failed");
-//                 //cout << "after" << state << endl;
-//                 exit(err);
-                
-//             }
-//             else if (pid > 0)
-//             {
-//                 wait(&status);
-//                 if(WIFEXITED(status))
-//                 {
-//                     if(status != 0)
-//                     {
-//                         state= true;
-//                     }
-//                 }
-            
-//             }
-//         }
-        
-
-// };
-
-
 
 int main(int argc, char *argv[])
 {
@@ -542,30 +502,9 @@ int main(int argc, char *argv[])
     Execute ex;
     //Connector connect;
     cmd.start(lst);
-    // for(int i = 0; i < lst.size(); ++i)
-    // {
-    //     cout << lst.at(i) << endl;
-    // }
-    // lst.clear()
-    // cmd.start(lst);
-    // for(int i = 0; i < lst.size(); ++i)
-    // {
-    //     cout << lst.at(i) << endl;
-    // }
-    //int i = 0;
-    // while(i < lst.size())
-    // {
-    //     //cout << "main" << endl;
-    //     ex.execute(i,lst.at(i),lst,executed);
-    //     cout << i << endl;
-    //     if(lst.at(i) == "exit" || lst.at(i) == "exit " || lst.at(i) == " exit")
-    //     return 0;
-    //     //cout << i << endl;
-    // }
-    //cout << lst.at(0) << endl;
     while(lst.size() == 0 || (lst.at(0) != "exit" && lst.at(0) != "exit " && lst.at(0) != " exit"))
     {
-        int i = 0;
+        unsigned int i = 0;
         //cout << lst.size() << endl;
         while(i < lst.size())
         {
@@ -629,11 +568,11 @@ int main(int argc, char *argv[])
                     else
                     {
                     //cout << "loc3 " << i << endl;
-                    ex.execute(i,lst.at(i),lst,temp);
-                    if(temp.size() != 0)
-                    {
-                        executed.push_back(temp.at(temp.size()-1));
-                    }
+                        ex.execute(i,lst.at(i),lst,temp);
+                        if(temp.size() != 0)
+                        {
+                            executed.push_back(temp.at(temp.size()-1));
+                        }
                     }
                 }
                 
@@ -647,225 +586,6 @@ int main(int argc, char *argv[])
         executed.clear();
         cmd.start(lst);
     }
-    // //ex.go("mkdir", "kjue");
-    // // executes first command line
-    // if(lst.size() != 0)
-    // {
-    //     //  if the command line has less than two arguements
-    //     if(lst.size() <= 6)
-    //     {
-    //         if(lst.at(0) == "exit")
-    //             return 0;
-    //         if(lst.at(0) == "#")
-    //         {
-                
-    //         }
-    //         else if(lst.size() == 2)
-    //         {
-    //             ex.go(lst.at(0), states = false);
-    //         }
-    //         else if(lst.at(1) == "#")
-    //         {
-    //             ex.go(lst.at(0), states = false);
-    //         }
-    //         else
-    //         ex.go(lst.at(0),lst.at(1),states = false);
-    //     }
-    //     // if the command line has at least 2 commands
-    //     if(lst.size() > 6)
-    //     {
-    //         if(lst.at(1) == "#")
-    //         {
-    //             ex.go(lst.at(0), states = false);
-    //         }
-    //         else if(lst.at(4) == "#")
-    //         {
-    //             ex.go(lst.at(3), states = false);
-    //         }
-    //         else if(lst.at(2) == "||")
-    //         {
-    //             //state = false;
-    //             ex.go(lst.at(0),lst.at(1), states);
-    //             //cout << states << endl;
-    //             bool stat = connect.ors(states);
-    //             //cout << stat << endl;
-    //             executed.push_back(stat);
-    //             if(stat)
-    //             {
-    //                 ex.go(lst.at(3),lst.at(4),states = false);
-    //                 executed.push_back(states);
-    //             }
-    //         }
-    //         else if(lst.at(2) == "&&")
-    //         {
-    //             ex.go(lst.at(0), lst.at(1), states);
-    //             //cout << states << endl;
-    //             bool stat = connect.ands(states);
-    //             //cout << stat << endl;
-    //             executed.push_back(stat);
-    //             if(!stat)
-    //             {
-    //                 ex.go(lst.at(3),lst.at(4),states = false);
-    //                 executed.push_back(states);
-    //             }
-    //         }
-    //         else if(lst.at(2) == ";")
-    //         {
-    //             ex.go(lst.at(0), lst.at(1), states = false);
-    //             executed.push_back(states);
-    //             ex.go(lst.at(3), lst.at(4), states = false);
-    //             executed.push_back(states);
-    //         }
-    //     }
-    // }
-    //     //if the command line has more than 2 commands
-    //     if(lst.size() > 7)
-    //     {
-    //         //cout << lst.at(6) << endl;
-    //         for (unsigned int i = 5; i < lst.size()-2; i = i + 3)
-    //         {
-    //             if(lst.at(i+ 2) == "#")
-    //             {
-    //                 ex.go(lst.at(i + 1), states = false);
-    //             }
-    //             else if(lst.at(i) == "||")
-    //             {
-    //                 if(executed.at(executed.size()-1))
-    //                 {
-    //                     ex.go(lst.at(i + 1), lst.at(i + 2), states = false);
-    //                     executed.push_back(states);
-    //                 }
-    //             }
-                
-    //             else if(lst.at(i) == "&&")
-    //             {
-    //                 if(!executed.at(executed.size()-1))
-    //                 {
-    //                     ex.go(lst.at(i + 1), lst.at(i + 2), states = false);
-    //                     executed.push_back(states);
-    //                 }
-    //             }
-                 
-    //             else if(lst.at(i) == ";")
-    //             {
-    //                 ex.go(lst.at(i + 1), lst.at(i + 2), states = false);
-    //                 executed.push_back(states);
-    //             }
-                
-    //         }
-    //     }
-        
-    // //executes subsequent command lines
-    // while(lst.size() == 0 || lst.at(0) != "exit")
-    // {
-    //     lst.clear();
-    //     cmd.start(lst);
-    //     if(lst.size() != 0 && lst.at(0) != "exit")
-    //     {
-    //         if(lst.size() != 0)
-    //         {
-    //             if(lst.size() <= 6)
-    //             {
-    //                 if(lst.at(0) == "#")
-    //                 {
-                        
-    //                 }
-    //                 else if(lst.at(1) == "#")
-    //                 {
-    //                     ex.go(lst.at(0), states = false);
-    //                 }
-    //                 else if(lst.size() == 2)
-    //                 {
-    //                     ex.go(lst.at(0), states = false);
-    //                 }
-    //                 else
-    //                 ex.go(lst.at(0),lst.at(1),states = false);
-    //             }
-    //             if(lst.size() > 6)
-    //             {
-    //                 if(lst.at(1) == "#")
-    //                 {
-    //                     ex.go(lst.at(0), states = false);
-    //                 }
-    //                 else if(lst.at(4) == "#")
-    //                 {
-    //                     ex.go(lst.at(3), states = false);
-    //                 }
-    //                 else if(lst.at(2) == "||")
-    //                 {
-    //                     //state = false;
-    //                     ex.go(lst.at(0),lst.at(1), states);
-    //                     //cout << states << endl;
-    //                     bool stat = connect.ors(states);
-    //                     //cout << stat << endl;
-    //                     executed.push_back(stat);
-    //                     if(stat)
-    //                     {
-    //                         ex.go(lst.at(3),lst.at(4),states = false);
-    //                         executed.push_back(states);
-    //                     }
-    //                 }
-    //                 else if(lst.at(2) == "&&")
-    //                 {
-    //                     ex.go(lst.at(0), lst.at(1), states);
-    //                     //cout << states << endl;
-    //                     bool stat = connect.ands(states);
-    //                     //cout << stat << endl;
-    //                     executed.push_back(stat);
-    //                     if(!stat)
-    //                     {
-    //                         ex.go(lst.at(3),lst.at(4),states = false);
-    //                         executed.push_back(states);
-    //                     }
-    //                 }
-    //                 else if(lst.at(2) == ";")
-    //                 {
-    //                     ex.go(lst.at(0), lst.at(1), states = false);
-    //                     executed.push_back(states);
-    //                     ex.go(lst.at(3), lst.at(4), states = false);
-    //                     executed.push_back(states);
-    //                 }
-    //             }
-    //         }
-    //         if(lst.size() > 7)
-    //         {
-    //             //cout << lst.at(6) << endl;
-    //             for (unsigned int i = 5; i < lst.size()-2; i = i + 3)
-    //             {
-    //                 if(lst.at(i+ 2) == "#")
-    //                 {
-    //                     ex.go(lst.at(i + 1), states = false);
-    //                     return 0;
-    //                 }
-    //                 else if(lst.at(i) == "||")
-    //                 {
-    //                     if(executed.at(executed.size()-1))
-    //                     {
-    //                         ex.go(lst.at(i + 1), lst.at(i + 2), states = false);
-    //                         executed.push_back(states);
-    //                     }
-    //                 }
-                    
-    //                 else if(lst.at(i) == "&&")
-    //                 {
-    //                     if(!executed.at(executed.size()-1))
-    //                     {
-    //                         ex.go(lst.at(i + 1), lst.at(i + 2), states = false);
-    //                         executed.push_back(states);
-    //                     }
-    //                 }
-                     
-    //                 else if(lst.at(i) == ";")
-    //                 {
-    //                     ex.go(lst.at(i + 1), lst.at(i + 2), states = false);
-    //                     executed.push_back(states);
-    //                 }
-                    
-    //             }
-    //         }
-    //         }
-            
-    //     }
    
     return 0;
 }
