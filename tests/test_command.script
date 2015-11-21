@@ -1,0 +1,36 @@
+Script started on Fri 20 Nov 2015 11:14:55 PM PST
+[kjue001@hammer rshell]$ make
+rm -rf bin
+mkdir bin
+g++ -Wall -Werror -ansi -pedantic src/rshell.cpp -o bin/rshell
+[kjue001@hammer rshell]$ bin/rshell
+$ ls
+bin  LICENSE	single_command.script  test_command1.script  test.script
+hw1  Makefile	src		       tests
+hw2  README.md	test_command1	       test.scripp
+$ test bin && echo hello
+hello
+$ test not && echo hello
+$ test -e src && echo hello
+hello
+$ test -e not && echo hello
+$ test -f bin && echo file
+$ test -f not && echo file
+$ test -f README.md && echo file
+file
+$ test -d bin && echo direc
+direc
+$ test -d README.mdH&& echo direc
+$ test -d not && echo direc
+$ test -d bid && (echo direct|| echo not)
+$ test -d bid && echo direc || echo not
+not
+$ echo hello && test bin &&eecho bin
+hello
+1
+bin
+$ exit
+[kjue001@hammer rshell]$ exit
+exit
+
+Script done on Fri 20 Nov 2015 11:20:55 PM PST

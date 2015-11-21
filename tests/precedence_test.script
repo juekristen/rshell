@@ -1,0 +1,95 @@
+Script started on Fri 20 Nov 2015 11:45:02 PM PST
+[kjue001@hammer rshell]$ make
+rm -rf bin
+mkdir bin
+g++ -Wall -Werror -ansi -pedantic src/rshell.cpp -o bin/rshell
+[kjue001@hammer rshell]$ bin/rshell
+$ (ls || echo p) || (echo one || echo two) || echo hi
+bin	 Makefile		  single_command.script	 tests
+hw1	 precedence_test1	  src			 test.scripp
+hw2	 precedence_test1.script  test_command1		 test.script
+LICENSE	 README.md		  test_command1.script
+$ (ls && echo b) && echo hi
+bin	 Makefile		  single_command.script	 tests
+hw1	 precedence_test1	  src			 test.scripp
+hw2	 precedence_test1.script  test_command1		 test.script
+LICENSE	 README.md		  test_command1.script
+b
+hi
+$ (ls -a || ls) && echo hello
+.     hw1	precedence_test1	 src		       test.scripp
+..    hw2	precedence_test1.script	 test_command1	       test.script
+bin   LICENSE	README.md		 test_command1.script
+.git  Makefile	single_command.script	 tests
+hello
+$ (ls #&& echo bye)
+ls: cannot access #: No such file or directory
+terminate called after throwing an instance of 'std::out_of_range'
+  what():  vector::_M_range_check
+Aborted
+[kjue001@hammer rshell]$ scripthprecedence_test1.script
+Script started, file is precedence_test1.script
+[kjue001makershellt_command1st1 precedence_test1.script
+rm -rf bin
+mkdir bin
+g++ -Wall -Werror -ansi -pedantic src/rshell.cpp -o bin/rshell
+[kjue001bin/rshellt_command1st1 precedence_test1.script
+$ (ls || echo p) || (echo one || echo two) || echo hi
+bin	 Makefile		  single_command.script	 tests
+hw1	 precedence_test1	  src			 test.scripp
+hw2	 precedence_test1.script  test_command1		 test.script
+LICENSE	 README.md		  test_command1.script
+$ (ls && echo ls) && (echo b || echo c)
+bin	 Makefile		  single_command.script	 tests
+hw1	 precedence_test1	  src			 test.scripp
+hw2	 precedence_test1.script  test_command1		 test.script
+LICENSE	 README.md		  test_command1.script
+ls
+b
+$ (ls #echo)
+ls: cannot access #echo: No such file or directory
+$ (ls && echo ls) && (echo b || echo c) || echo c
+bin	 Makefile		  single_command.script	 tests
+hw1	 precedence_test1	  src			 test.scripp
+hw2	 precedence_test1.script  test_command1		 test.script
+LICENSE	 README.md		  test_command1.script
+ls
+b
+$ test bin && (echo one || echo two)
+one
+$ exit
+[kjue001@hammer rshell]$ exit
+exit
+Script done, file is precedence_test1.script
+[kjue001@hammer rshell]$ ls
+bin	 Makefile		  single_command.script	 tests
+hw1	 precedence_test1	  src			 test.scripp
+hw2	 precedence_test1.script  test_command1		 test.script
+LICENSE	 README.md		  test_command1.script
+[kjue001@hammer rshell]$ vim test_command1.script
+▽  "test_command1.script" 22L, 736CScript started on Fri 20 Nov 2015 08:02:32 PM PST
+^[]0;kjue001@hammer:~/rshell^G^[[?1034h[kjue001@hammer rshell]$ make^M
+rm -rf bin^M
+mkdir bin^M
+g++ -Wall -Werror -ansi -pedantic src/rshell.cpp -o bin/rshell^M
+^[]0;kjue001@hammer:~/rshell^G[kjue001@hammer rshell]$ bin/rshell^M
+$ ls^M
+bin  LICENSE	single_command.script  tests^M
+hw1  Makefile	srctest.scripp^M
+hw2  README.md	test_command1.script   test.script^M
+$ test re^H ^H^H ^H====^H ^H^H ^H^H ^H^H ^H-f^H ^He src^M
+$ ts^H ^Hest src && echo pass || echo fail^M
+pass^M
+$ test =^H ^H-e hw1 && echo pass || echo fail^M
+pass^M
+$ test -w^H ^He hello && echo ppas^H ^H^H ^H^H ^Hass || echo fail^M
+pass^M
+$ exit^M
+^[]0;kjue001@hammer:~/rshell^G[kjue001@hammer rshell]$ exit^M
+exit^M
+
+Script done on Fri 20 Nov 2015 08:05:29 PM PST
+"test_command1.script" 22L, 736C written					1,1All:wq
+*|\perlg-pem's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?|pperl/-pe['s/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\| perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a| perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)| perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)/| perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//| perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//g| perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//g't | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//ge | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//s | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)/t | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)_ | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\aC | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\o | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?| perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\| perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\ac | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\o | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?m | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*m | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].a | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\]n | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\d | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|2 | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]| perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|1 | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]
+
+*|\perlg-pem's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?|pperl/-pe['s/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\| perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a| perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)| perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)/| perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//| perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//g| perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//g'p | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//gr | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//e | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)/c | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)e | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a
