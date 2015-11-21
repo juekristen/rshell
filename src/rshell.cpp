@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
+#include <sys/stat.h>
 using namespace std;
 using namespace boost;
 
@@ -243,24 +244,28 @@ class Execute : public Connector
                     return;
                 else if(cmd == "(")
                 {
-                    int i = loc;
-                    vector <string> temp;
-                    while(cmds.at(i) != ")")
-                    {
-                        temp.push_back(cmds.at(i));
-                        ++i;
-                    }
-                    loc = i;
-                    int p = 1;
-                    while(p < temp.size())
-                    {
-                        string word = temp.at(p);
-                        loc++;
-                        ++p;
-                        //cout << "main" << endl;
-                        execute(loc, word ,cmds,states);
-                        //cout << i << endl;
-                    }
+                    cout << "(" << endl;
+                    loc++;
+                    cout << " anotehr" << endl;
+                    return;
+                    // int i = loc;
+                    // vector <string> temp;
+                    // while(cmds.at(i) != ")")
+                    // {
+                    //     temp.push_back(cmds.at(i));
+                    //     ++i;
+                    // }
+                    // loc = i;
+                    // int p = 1;
+                    // while(p < temp.size())
+                    // {
+                    //     string word = temp.at(p);
+                    //     loc++;
+                    //     ++p;
+                    //     //cout << "main" << endl;
+                    //     execute(loc, word ,cmds,states);
+                    //     //cout << i << endl;
+                    // }
                     // string word = cmds.at(loc);
                     // while(word != ")")
                     // {
@@ -289,10 +294,32 @@ class Execute : public Connector
                 }
                 else if(cmd != "||" && cmd != "&&" && cmd != ";")
                 {
-                    cout << 2 << endl;
+                    //cout << 2 << endl;
                     if(loc <= 1)
                     {
                         cout << 2.2 << endl;
+                        if(single.at(0) == "test" || single.at(0) == "[")
+                        {
+                            struct stat tester;
+                            if(single.size() < 3)
+                                stat(single.at(1).c_str(),&tester);
+                            else if(single.size == 3)
+                                stat(single.at(2).c_str(),&tester);
+                            
+                            if(single.size() < 3 || single.at(1) == "-e")
+                            {
+                                if(S_ISREG(tester.st_mode) || S_ISDIR(tester.st_mode))
+                                {
+                                    states.push_back(false);
+                                }
+                                else
+                                states.push_back(true);
+                            }
+                            else if(single.at(1) == "-f")
+                            {
+                                if((S_ISREG(tester.st_mode) || S_ISDIR(tester.st_mode)) && S_ISREG(tester.st_mode))
+                            }
+                        }
                         if(single.size() == 1)
                         go(single.at(0),st);
                         else 
@@ -305,7 +332,7 @@ class Execute : public Connector
                     }
                     else if (loc > 1)
                     {
-                        cout << 2.3 << endl;
+                        //cout << 2.3 << endl;
                         if(cmds.at(loc - 1) == "||" || (cmds.at(loc - 1) == "(" && cmds.at(loc - 2) == "||"))
                         {
                             cout << 2.1 << endl;
@@ -330,7 +357,7 @@ class Execute : public Connector
                             cout << "below loc" << endl;
                             //return;
                         }
-                        else if(cmds.at(loc - 1) == "&&")
+                        else if(cmds.at(loc - 1) == "&&"|| (cmds.at(loc - 1) == "(" && cmds.at(loc - 2) == "&&"))
                         {
                             cout << 300 <<endl;
                             if(states.size() != 0)
@@ -468,6 +495,7 @@ int main(int argc, char *argv[])
 {
     vector <string> lst;
     vector <bool> executed;
+    vector <bool> temp;
     CommandLine cmd;
     Execute ex;
     //Connector connect;
@@ -499,19 +527,79 @@ int main(int argc, char *argv[])
         cout << lst.size() << endl;
         while(i < lst.size())
         {
+            cout << "loc1 " << i << endl;
             //cout << "main" << endl;
             if((lst.at(i) == "exit" || lst.at(i) == "exit " || lst.at(i) == " exit") && (lst.at(i - 1) == "&&" || lst.at(i - 1) == ";"))
             return 0;
+            temp.clear();
             if(lst.at(i) == "(")
             {
                 cout << "parentesis" << endl;
-                vector <bool> temp;
-                ++i;
-                while(lst.at(i) !=")")
-                ex.execute(i,lst.at(i),lst,temp);
-                executed.push_back(temp.at(temp.size()-1));
+                cout << "loc2 " << i << endl;
+                
+                if(executed.size() != 0)
+                {
+                    cout << "State " << executed.at(executed.size()-1);
+                    temp.push_back(executed.at(executed.size()-1));
+                }
+                //++i;
+                while(lst.at(i) != ")")
+                {
+                    if(i != 0 && lst.at(i-1) == "||")
+                    {
+                        cout << "|" << endl;
+                        if(executed.size() != 0 && !executed.at(executed.size()-1))
+                        {
+                            while(lst.at(i) != ")")
+                            ++i;
+                            i--;
+                        }
+                        else
+                        {
+                            while(lst.at(i) != ")")
+                            ex.execute(i,lst.at(i),lst,temp);
+                            if(temp.size() != 0)
+                            {
+                                executed.push_back(temp.at(temp.size()-1));
+                            }
+                        }
+                        
+                    }
+                    if(i != 0 && lst.at(i-1) == "&&")
+                    {
+                        cout << "&&" << endl;
+                        if(executed.size() != 0 && executed.at(executed.size()-1))
+                        {
+                            while(lst.at(i) != ")")
+                            ++i;
+                        }
+                        else
+                        {
+                            while(lst.at(i) != ")")
+                            ex.execute(i,lst.at(i),lst,temp);
+                            if(temp.size() != 0)
+                            {
+                                executed.push_back(temp.at(temp.size()-1));
+                            }
+                        }
+                        
+                    }
+                    else
+                    {
+                    cout << "loc3 " << i << endl;
+                    ex.execute(i,lst.at(i),lst,temp);
+                    if(temp.size() != 0)
+                    {
+                        executed.push_back(temp.at(temp.size()-1));
+                    }
+                    }
+                }
+                
             }
+            cout << "loc4 " << i << endl;
+            cout << lst.at(i) << endl;
             ex.execute(i,lst.at(i),lst,executed);
+            cout << "i" << i << endl;
         }
         lst.clear();
         executed.clear();
