@@ -244,9 +244,9 @@ class Execute : public Connector
                     return;
                 else if(cmd == "(")
                 {
-                    cout << "(" << endl;
+                    //cout << "(" << endl;
                     loc++;
-                    cout << " anotehr" << endl;
+                    //cout << " anotehr" << endl;
                     return;
                     // int i = loc;
                     // vector <string> temp;
@@ -288,7 +288,7 @@ class Execute : public Connector
                 else if(cmd == "#")
                 {
                     
-                    cout << 1 << endl;
+                    //cout << 1 << endl;
                     loc = cmds.size();
                     return;
                 }
@@ -297,13 +297,13 @@ class Execute : public Connector
                     //cout << 2 << endl;
                     if(loc <= 1)
                     {
-                        cout << 2.2 << endl;
+                        //cout << 2.2 << endl;
                         if(single.at(0) == "test" || single.at(0) == "[")
                         {
                             struct stat tester;
                             if(single.size() < 3)
                                 stat(single.at(1).c_str(),&tester);
-                            else if(single.size == 3)
+                            else if(single.size() == 3)
                                 stat(single.at(2).c_str(),&tester);
                             
                             if(single.size() < 3 || single.at(1) == "-e")
@@ -317,7 +317,17 @@ class Execute : public Connector
                             }
                             else if(single.at(1) == "-f")
                             {
-                                if((S_ISREG(tester.st_mode) || S_ISDIR(tester.st_mode)) && S_ISREG(tester.st_mode))
+                                if((S_ISREG(tester.st_mode)))
+                                    states.push_back(false);
+                                else 
+                                    states.push_back(true);
+                            }
+                            else if(single.at(1) == "-d")
+                            {
+                                if(S_ISDIR(tester.st_mode))
+                                    states.push_back(false);
+                                else
+                                    states.push_back(true);
                             }
                         }
                         if(single.size() == 1)
@@ -332,17 +342,49 @@ class Execute : public Connector
                     }
                     else if (loc > 1)
                     {
+                        if(single.at(0) == "test" || single.at(0) == "[")
+                        {
+                            struct stat tester;
+                            if(single.size() < 3)
+                                stat(single.at(1).c_str(),&tester);
+                            else if(single.size() == 3)
+                                stat(single.at(2).c_str(),&tester);
+                            
+                            if(single.size() < 3 || single.at(1) == "-e")
+                            {
+                                if(S_ISREG(tester.st_mode) || S_ISDIR(tester.st_mode))
+                                {
+                                    states.push_back(false);
+                                }
+                                else
+                                states.push_back(true);
+                            }
+                            else if(single.at(1) == "-f")
+                            {
+                                if((S_ISREG(tester.st_mode)))
+                                    states.push_back(false);
+                                else 
+                                    states.push_back(true);
+                            }
+                            else if(single.at(1) == "-d")
+                            {
+                                if(S_ISDIR(tester.st_mode))
+                                    states.push_back(false);
+                                else
+                                    states.push_back(true);
+                            }
+                        }
                         //cout << 2.3 << endl;
                         if(cmds.at(loc - 1) == "||" || (cmds.at(loc - 1) == "(" && cmds.at(loc - 2) == "||"))
                         {
-                            cout << 2.1 << endl;
+                            
                             //cout << states.at(states.size()-1) << endl;
                             //cout << single.size() << endl;
                             if(states.size()!= 0)
                             {
                                 if(states.at(states.size()-1))
                                 {
-                                    cout << "inside" << endl;
+                                    //cout << "inside" << endl;
                                     if(single.size() == 1)
                                     go(single.at(0),st);
                                     else 
@@ -352,17 +394,17 @@ class Execute : public Connector
                                         loc = cmds.size();
                                 }
                             }
-                            cout << "above loc" << endl;
+                            //cout << "above loc" << endl;
                             ++loc;
-                            cout << "below loc" << endl;
+                            //cout << "below loc" << endl;
                             //return;
                         }
                         else if(cmds.at(loc - 1) == "&&"|| (cmds.at(loc - 1) == "(" && cmds.at(loc - 2) == "&&"))
                         {
-                            cout << 300 <<endl;
+                            //cout << 300 <<endl;
                             if(states.size() != 0)
                             {
-                                cout << 400 << endl;
+                                //cout << 400 << endl;
                                 if(!states.at(states.size()-1))
                                 {
                                     if(single.size() == 1)
@@ -374,12 +416,12 @@ class Execute : public Connector
                                         loc = cmds.size();
                                 }
                             }
-                            cout << 5000 << endl;
+                            //cout << 5000 << endl;
                             ++loc;
                         }
                         else if(cmds.at(loc -1) == ";")
                         {
-                            cout << 400 << endl;
+                           // cout << 400 << endl;
                             if(single.size() == 1)
                             go(single.at(0),st);
                             else 
@@ -394,7 +436,7 @@ class Execute : public Connector
                 }
                 else if(cmd == "||" || cmd == "&&" || cmd == ";")
                 {
-                    cout << 3 << endl;
+                    //cout << 3 << endl;
                     loc++;
                 }
             }
@@ -500,10 +542,10 @@ int main(int argc, char *argv[])
     Execute ex;
     //Connector connect;
     cmd.start(lst);
-    for(int i = 0; i < lst.size(); ++i)
-    {
-        cout << lst.at(i) << endl;
-    }
+    // for(int i = 0; i < lst.size(); ++i)
+    // {
+    //     cout << lst.at(i) << endl;
+    // }
     // lst.clear()
     // cmd.start(lst);
     // for(int i = 0; i < lst.size(); ++i)
@@ -524,22 +566,22 @@ int main(int argc, char *argv[])
     while(lst.size() == 0 || (lst.at(0) != "exit" && lst.at(0) != "exit " && lst.at(0) != " exit"))
     {
         int i = 0;
-        cout << lst.size() << endl;
+        //cout << lst.size() << endl;
         while(i < lst.size())
         {
-            cout << "loc1 " << i << endl;
+            //cout << "loc1 " << i << endl;
             //cout << "main" << endl;
             if((lst.at(i) == "exit" || lst.at(i) == "exit " || lst.at(i) == " exit") && (lst.at(i - 1) == "&&" || lst.at(i - 1) == ";"))
             return 0;
             temp.clear();
             if(lst.at(i) == "(")
             {
-                cout << "parentesis" << endl;
-                cout << "loc2 " << i << endl;
+                // cout << "parentesis" << endl;
+                // cout << "loc2 " << i << endl;
                 
                 if(executed.size() != 0)
                 {
-                    cout << "State " << executed.at(executed.size()-1);
+                    //cout << "State " << executed.at(executed.size()-1);
                     temp.push_back(executed.at(executed.size()-1));
                 }
                 //++i;
@@ -547,7 +589,7 @@ int main(int argc, char *argv[])
                 {
                     if(i != 0 && lst.at(i-1) == "||")
                     {
-                        cout << "|" << endl;
+                        //cout << "|" << endl;
                         if(executed.size() != 0 && !executed.at(executed.size()-1))
                         {
                             while(lst.at(i) != ")")
@@ -567,7 +609,7 @@ int main(int argc, char *argv[])
                     }
                     if(i != 0 && lst.at(i-1) == "&&")
                     {
-                        cout << "&&" << endl;
+                        //cout << "&&" << endl;
                         if(executed.size() != 0 && executed.at(executed.size()-1))
                         {
                             while(lst.at(i) != ")")
@@ -586,7 +628,7 @@ int main(int argc, char *argv[])
                     }
                     else
                     {
-                    cout << "loc3 " << i << endl;
+                    //cout << "loc3 " << i << endl;
                     ex.execute(i,lst.at(i),lst,temp);
                     if(temp.size() != 0)
                     {
@@ -596,10 +638,10 @@ int main(int argc, char *argv[])
                 }
                 
             }
-            cout << "loc4 " << i << endl;
-            cout << lst.at(i) << endl;
+            //cout << "loc4 " << i << endl;
+            //cout << lst.at(i) << endl;
             ex.execute(i,lst.at(i),lst,executed);
-            cout << "i" << i << endl;
+            //cout << "i" << i << endl;
         }
         lst.clear();
         executed.clear();
